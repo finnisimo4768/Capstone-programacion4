@@ -1,0 +1,76 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Map {
+  id_map    String     @id @default(uuid())
+  name      String
+  width     Int
+  height    Int
+  user_id   String
+  user      User       @relation(fields: [user_id], references: [id_user])
+  obstacles Obstacle[]
+  routes    Route[]
+  waypoints Waypoint[]
+  path_id   String?    @unique
+  path      Path?      @relation(fields: [path_id], references: [id_path])
+
+  @@map("maps")
+}
+
+model Path {
+  id_path String @id @default(uuid())
+  path    String @unique
+  map     Map?   @relation
+
+  @@map("paths")
+}
+
+model Obstacle {
+  id_obstacle String @id @default(uuid())
+  x           Int
+  y           Int
+  map_id      String
+  maps        Map    @relation(fields: [map_id], references: [id_map])
+
+  @@map("obstacles")
+}
+
+model Route {
+  id_route String @id @default(uuid())
+  distance Int
+  startx   Int
+  starty   Int
+  endx     Int
+  endy     Int
+  map_id   String
+  maps     Map    @relation(fields: [map_id], references: [id_map])
+
+  @@map("routes")
+}
+
+model User {
+  id_user  String @id @default(uuid())
+  username String @unique
+  password String @unique
+  email    String
+  maps     Map[]
+
+  @@map("users")
+}
+
+model Waypoint {
+  id_waypoint String @id @default(uuid())
+  x           Int
+  y           Int
+  name        String
+  map_id      String
+  maps        Map    @relation(fields: [map_id], references: [id_map])
+
+  @@map("waypoints")
+}
